@@ -29,7 +29,7 @@ from data_processing import *
 # PARAMETERS
 # ----------------------------------------------------------------------------
 DATA_PATH = pathlib.Path(__file__).parent.joinpath("data")
-
+IDRT_COLORSCALE = ['#ffffff', '#e1ebeb', '#c9d5d5', '#b6bfbe', '#a6a8a6', '#99918e', '#8d7b76', '#81645e', '#764e47', '#6a3730', '#5d1f1b', '#500000']
 # ----------------------------------------------------------------------------
 # Geoserver API urls
 # ----------------------------------------------------------------------------
@@ -125,7 +125,7 @@ app.layout = serve_layout
     Input('dropdown-columns', 'value')
     )
 def update_map(selected_column):
-    map_fig = generate_choropleth(disasters,'county', tx_counties, 'NAME', selected_column, color_continuous_scale="Viridis" )
+    map_fig = generate_choropleth(disasters,'county', tx_counties, 'NAME', selected_column )
     map_div = html.Div([
         html.H2('Map for ' + selected_column),
         dcc.Graph(figure=map_fig)

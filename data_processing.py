@@ -29,7 +29,7 @@ def get_geoserver_data(geoserver_url):
 # Function to create choropleth map
 # ----------------------------------------------------------------------------
 
-def generate_choropleth(df,df_location_col, geojson, geojson_properties_location, df_map_value_col, color_continuous_scale="Viridis" ):
+def generate_choropleth(df,df_location_col, geojson, geojson_properties_location, df_map_value_col, color_continuous_scale="Reds",opacity=.75 ):
     featureidkey = "properties." + geojson_properties_location
     fig = px.choropleth_mapbox(df, geojson=geojson, locations=df_location_col,
                                featureidkey=featureidkey,
@@ -39,5 +39,5 @@ def generate_choropleth(df,df_location_col, geojson, geojson_properties_location
                                zoom=4.8, center = {"lat": 31.3966, "lon": -99.1213},
                                opacity=0.5,
                               )
-    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, width=900, height=700)
     return fig
