@@ -5,6 +5,8 @@
 import ssl
 from urllib.request import urlopen
 import json
+import os # Operating system library
+import pathlib # file paths
 
 import pandas as pd
 import plotly.express as px
@@ -23,6 +25,10 @@ from dash.dependencies import Input, Output, State, ALL, MATCH
 # import local python functions
 from data_processing import *
 
+# ----------------------------------------------------------------------------
+# PARAMETERS
+# ----------------------------------------------------------------------------
+DATA_PATH = pathlib.Path(__file__).parent.joinpath("data")
 
 # ----------------------------------------------------------------------------
 # Geoserver API urls
@@ -30,6 +36,10 @@ from data_processing import *
 # api call to geoserver
 disasters_url = "https://geonode.tdis.io/geoserver/SHMP/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SHMP%3ATotal_Disaster_Declarations&maxFeatures=500&outputFormat=application%2Fjson&PROPERTYNAME=(fid,county,total_disasters,total_flood,total_fire,total_tornado,total_hurricane,total_coastal_storm,total_drought,total_freezing)"
 
+# ----------------------------------------------------------------------------
+# LOAD LOCAL DATA FILE
+# ----------------------------------------------------------------------------
+disasters = pd.read_csv(os.path.join(DATA_PATH, 'disasters.csv'))
 
 # ----------------------------------------------------------------------------
 # LOAD TX COUNTIES GEOMETRIES FROM PLOTLY GEOJSON
@@ -64,19 +74,19 @@ app = dash.Dash(__name__,
 # ----------------------------------------------------------------------------
 
 def serve_layout():
-    # Get Data
-    disasters = get_geoserver_data(disasters_url)
+    # # Get Data
+    # disasters = get_geoserver_data(disasters_url)
     disasters_map_options = list(disasters.columns)[2:]
-
-    # Create data dictionary for data_store
-    data_dictionary = {'disasters': disasters.to_dict('records')}
-
-
+    #
+    # # Create data dictionary for data_store
+    # data_dictionary = {'disasters': disasters.to_dict('records')}
+    #
+    #
 
     # Page Layout
     page_layout =  html.Div([
         # Store data
-        dcc.Store(id='store',data=data_dictionary),
+        # dcc.Store(id='store',data=data_dictionary),
 
         dbc.Row([
             dbc.Col([
@@ -112,13 +122,10 @@ app.layout = serve_layout
 
 @app.callback(
     Output('div-map', 'children'),
-    Input('dropdown-columns', 'value'),
-    State('store','data')
-)
-def update_map(selected_column, data):
-    data_dict = data['disasters']
-    data_df = pd.DataFrame(data_dict)
-    map_fig = generate_choropleth(data_df,'county', tx_counties, 'NAME', selected_column, color_continuous_scale="Viridis" )
+    Input('dropdown-columns', 'value')
+    )
+def update_map(selected_column):
+    map_fig = generate_choropleth(disasters,'county', tx_counties, 'NAME', selected_column, color_continuous_scale="Viridis" )
     map_div = html.Div([
         html.H2('Map for ' + selected_column),
         dcc.Graph(figure=map_fig)
