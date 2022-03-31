@@ -99,6 +99,7 @@ def serve_layout():
         ]),
         dbc.Row([
             dbc.Col([
+                html.Label('Column:'),
                 dcc.Dropdown(
                 id='dropdown-columns',
                    options=[
@@ -106,7 +107,17 @@ def serve_layout():
                    ],
                    value = str(disasters_map_options[0])
                 ),
-            ], width=3)
+            ], width=2),
+            dbc.Col([
+                html.Label('Colorscale:'),
+                dcc.Dropdown(
+                id='dropdown-colorscales',
+                   options=[
+                       {'label': i, 'value': i} for i in px.colors.named_colorscales()
+                   ],
+                   value = 'reds'
+                ),
+            ], width=2),
         ]),
         dbc.Row([
             dbc.Col([
@@ -126,10 +137,11 @@ app.layout = serve_layout
 
 @app.callback(
     Output('div-map', 'children'),
-    Input('dropdown-columns', 'value')
+    Input('dropdown-columns', 'value'),
+    Input('dropdown-colorscales', 'value')
     )
-def update_map(selected_column):
-    map_fig = generate_choropleth(disasters,'county', tx_counties, 'NAME', selected_column, boundary_layers = tdem_regions_simple )
+def update_map(selected_column, selected_colorscale):
+    map_fig = generate_choropleth(disasters,'county', tx_counties, 'NAME', selected_column, boundary_layers = tdem_regions_simple, color_continuous_scale=selected_colorscale )
     map_div = html.Div([
         html.H2('Map for ' + selected_column),
         dcc.Graph(figure=map_fig)
