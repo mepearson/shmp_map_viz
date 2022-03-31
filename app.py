@@ -56,7 +56,11 @@ for county in counties['features']:
         tx_counties_features.append(county)
 tx_counties = {'type':'FeatureCollection', 'features': tx_counties_features}
 
-
+# TDEM region boundaires
+tdem_regions_simple_file = os.path.join(os.getcwd(),'data','tdem_regions_simple.json')
+f = open(tdem_regions_simple_file)
+tdem_regions_simple = json.load(f)
+f.close()
 # ----------------------------------------------------------------------------
 # APP Settings
 # ----------------------------------------------------------------------------
@@ -109,7 +113,7 @@ def serve_layout():
                 html.Div(id='div-map'),
             ])
         ]),
-    ])
+    ], style={'margin':'15px'})
 
     return page_layout
 
@@ -125,7 +129,7 @@ app.layout = serve_layout
     Input('dropdown-columns', 'value')
     )
 def update_map(selected_column):
-    map_fig = generate_choropleth(disasters,'county', tx_counties, 'NAME', selected_column )
+    map_fig = generate_choropleth(disasters,'county', tx_counties, 'NAME', selected_column, boundary_layers = tdem_regions_simple )
     map_div = html.Div([
         html.H2('Map for ' + selected_column),
         dcc.Graph(figure=map_fig)
