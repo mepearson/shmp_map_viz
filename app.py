@@ -121,6 +121,16 @@ def serve_layout():
                                value = 'reds'
                             ),
                         ], width=2),
+                        dbc.Col([
+                            html.Label('Reverse Colorscale:'),
+                            dcc.Dropdown(
+                            id='dropdown-colorscales_r',
+                               options=[
+                                   {'label': i, 'value': i} for i in ['No','Yes']
+                               ],
+                               value = 'No'
+                            ),
+                        ], width=2),
                     ]),
                     dbc.Row([
                         dbc.Col([
@@ -128,7 +138,7 @@ def serve_layout():
                         ])
                     ]),
                 ]),
-                dcc.Tab(label='Useful stuff', children=[
+                dcc.Tab(label='Colorscale examples', children=[
                     html.H3('Colorscales'),
                     dbc.Row([
                         dbc.Col([dcc.Graph(figure=px.colors.sequential.swatches_continuous()),],width=3),
@@ -160,9 +170,13 @@ app.layout = serve_layout
 @app.callback(
     Output('div-map', 'children'),
     Input('dropdown-columns', 'value'),
-    Input('dropdown-colorscales', 'value')
+    Input('dropdown-colorscales', 'value'),
+    Input('dropdown-colorscales_r', 'value')
     )
-def update_map(selected_column, selected_colorscale):
+def update_map(selected_column, selected_colorscale, reversed):
+    if reversed == 'Yes':
+        selected_colorscale = selected_colorscale + '_r'
+
     map_fig = generate_choropleth(disasters,'county', tx_counties, 'NAME', selected_column, boundary_layers = tdem_regions_simple, color_continuous_scale=selected_colorscale )
     map_div = html.Div([
         html.H2('Map for ' + selected_column),
