@@ -98,32 +98,54 @@ def serve_layout():
             ]),
         ]),
         dbc.Row([
-            dbc.Col([
-                html.Label('Column:'),
-                dcc.Dropdown(
-                id='dropdown-columns',
-                   options=[
-                       {'label': i, 'value': i} for i in disasters_map_options
-                   ],
-                   value = str(disasters_map_options[0])
-                ),
-            ], width=2),
-            dbc.Col([
-                html.Label('Colorscale:'),
-                dcc.Dropdown(
-                id='dropdown-colorscales',
-                   options=[
-                       {'label': i, 'value': i} for i in px.colors.named_colorscales()
-                   ],
-                   value = 'reds'
-                ),
-            ], width=2),
-        ]),
-        dbc.Row([
-            dbc.Col([
-                html.Div(id='div-map'),
+            dcc.Tabs([
+                dcc.Tab(label='Main App', children=[
+                    dbc.Row([
+                        dbc.Col([
+                            html.Label('Column:'),
+                            dcc.Dropdown(
+                            id='dropdown-columns',
+                               options=[
+                                   {'label': i, 'value': i} for i in disasters_map_options
+                               ],
+                               value = str(disasters_map_options[0])
+                            ),
+                        ], width=2),
+                        dbc.Col([
+                            html.Label('Colorscale:'),
+                            dcc.Dropdown(
+                            id='dropdown-colorscales',
+                               options=[
+                                   {'label': i, 'value': i} for i in px.colors.named_colorscales()
+                               ],
+                               value = 'reds'
+                            ),
+                        ], width=2),
+                    ]),
+                    dbc.Row([
+                        dbc.Col([
+                            html.Div(id='div-map'),
+                        ])
+                    ]),
+                ]),
+                dcc.Tab(label='Useful stuff', children=[
+                    html.H3('Colorscales'),
+                    dbc.Row([
+                        dbc.Col([dcc.Graph(figure=px.colors.sequential.swatches_continuous()),],width=3),
+                        dbc.Col([dcc.Graph(figure=px.colors.diverging.swatches_continuous()),],width=3),
+                        dbc.Col([dcc.Graph(figure=px.colors.cyclical.swatches_continuous()),],width=3),
+                        dbc.Col([dcc.Graph(figure=px.colors.cyclical.swatches_cyclical())],width=3),
+                    ])
+
+
+
+
+
+                ])
             ])
         ]),
+
+
     ], style={'margin':'15px'})
 
     return page_layout
