@@ -40,6 +40,8 @@ disasters_url = "https://geonode.tdis.io/geoserver/SHMP/ows?service=WFS&version=
 # LOAD LOCAL DATA FILE
 # ----------------------------------------------------------------------------
 disasters = pd.read_csv(os.path.join(DATA_PATH, 'disasters.csv'))
+regions_df = pd.read_csv(os.path.join('data','TDEM_Regions_Counties.csv'))
+disasters = disasters.merge(regions_df, how='left', left_on='county', right_on='County')
 
 # ----------------------------------------------------------------------------
 # LOAD TX COUNTIES GEOMETRIES FROM PLOTLY GEOJSON
@@ -61,6 +63,8 @@ tdem_regions_simple_file = os.path.join(os.getcwd(),'data','tdem_regions_simple.
 f = open(tdem_regions_simple_file)
 tdem_regions_simple = json.load(f)
 f.close()
+
+
 # ----------------------------------------------------------------------------
 # APP Settings
 # ----------------------------------------------------------------------------
@@ -131,6 +135,16 @@ def serve_layout():
                                value = 'No'
                             ),
                         ], width=2),
+                        dbc.Col([
+                            html.Label('Region:'),
+                            dcc.Dropdown(
+                            id='dropdown-region',
+                               options=[
+                                   {'label': i, 'value': i} for i in ['All','1','2','3','4','5','6']
+                               ],
+                               value = 'All'
+                            ),
+                        ], width=2),
                     ]),
                     dbc.Row([
                         dbc.Col([
@@ -171,13 +185,18 @@ app.layout = serve_layout
     Output('div-map', 'children'),
     Input('dropdown-columns', 'value'),
     Input('dropdown-colorscales', 'value'),
-    Input('dropdown-colorscales_r', 'value')
+    Input('dropdown-colorscales_r', 'value'),
+    Input('dropdown-region', 'value')
     )
-def update_map(selected_column, selected_colorscale, reversed):
+def update_map(selected_column, selected_colorscale, reversed, region):
+    if region =='All':
+        map_df = disasters
+    else:
+        map_df =disasters[disasters['Region']==int(region)]
     if reversed == 'Yes':
         selected_colorscale = selected_colorscale + '_r'
 
-    map_fig = generate_choropleth(disasters,'county', tx_counties, 'NAME', selected_column, boundary_layers = tdem_regions_simple, color_continuous_scale=selected_colorscale )
+    map_fig = generate_choropleth(map_df,'county', tx_counties, 'NAME', selected_column, boundary_layers = tdem_regions_simple, color_continuous_scale=selected_colorscale )
     map_div = html.Div([
         html.H2('Map for ' + selected_column),
         dcc.Graph(figure=map_fig)
